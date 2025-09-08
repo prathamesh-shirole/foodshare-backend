@@ -1,7 +1,7 @@
 import express from "express";
 import { createBeggar, getBeggars } from "../controllers/beggarController.js";
 import { addComment, getComments } from "../controllers/commentController.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 

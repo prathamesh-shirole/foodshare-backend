@@ -1,16 +1,19 @@
 import express from "express";
-import { createBeggar, getBeggars } from "../controllers/beggarController.js";
-import { addComment, getComments } from "../controllers/commentController.js";
+import {
+  addBeggar,
+  getBeggars,
+  getBeggarById,
+  updateBeggar,
+  deleteBeggar,
+} from "../controllers/beggarController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Beggars
-router.post("/", authMiddleware, createBeggar);
-router.get("/", getBeggars);
-
-// Comments on beggar spots
-router.post("/:id/comments", authMiddleware, addComment);
-router.get("/:id/comments", getComments);
+router.post("/", authMiddleware, addBeggar);     // Add report
+router.get("/", getBeggars);              // Get all
+router.get("/:id", getBeggarById);        // Get one
+router.put("/:id", authMiddleware, updateBeggar);// Update
+router.delete("/:id", authMiddleware, deleteBeggar);// Delete
 
 export default router;

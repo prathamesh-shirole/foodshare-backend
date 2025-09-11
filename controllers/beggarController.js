@@ -1,32 +1,67 @@
-import Beggar from "../models/beggar.js";
+import Beggar from "../models/Beggar.js";
 
-// @desc Report a new beggar spot
-// @route POST /api/beggars
-// @access Private
-export const createBeggar = async (req, res) => {
+// ➕ Add beggar report
+export const addBeggar = async (req, res) => {
   try {
-    const { numberOfBeggars, coordinates, address } = req.body;
+    const { numberOfBeggars, description, location } = req.body;
 
-    const newBeggar = await Beggar.create({
+    if (!location?.latitude || !location?.longitude) {
+      return res.status(400).json({ message: "Location is required" });
+    }
+
+    const beggar = new Beggar({
       numberOfBeggars,
-      location: { type: "Point", coordinates, address },
-      createdBy: req.user.id,
+      description,
+      location,
+      reportedBy: req.user?._id || null,
     });
 
-    res.status(201).json(newBeggar);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    await beggar.save();
+    res.status(201).json({ message: "Beggar location added", beggar });
+  } catch (err) {
+    res.status(500).json({ message: "Error adding beggar location", error: err.message });
   }
 };
 
-// @desc Get all beggar spots
-// @route GET /api/beggars
-// @access Public
+// 📌 Get all beggars
 export const getBeggars = async (req, res) => {
   try {
-    const beggars = await Beggar.find().populate("createdBy", "username email");
+    const beggars = await Beggar.find().populate("reportedBy", "name email");
     res.json(beggars);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching beggars", error: err.message });
+  }
+};
+
+// 📌 Get single beggar by ID
+export const getBeggarById = async (req, res) => {
+  try {
+    const beggar = await Beggar.findById(req.params.id).populate("reportedBy", "name email");
+    if (!beggar) return res.status(404).json({ message: "Beggar not found" });
+    res.json(beggar);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching beggar", error: err.message });
+  }
+};
+
+// 📝 Update beggar report
+export const updateBeggar = async (req, res) => {
+  try {
+    const beggar = await Beggar.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!beggar) return res.status(404).json({ message: "Beggar not found" });
+    res.json({ message: "Beggar updated", beggar });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating beggar", error: err.message });
+  }
+};
+
+// ❌ Delete beggar
+export const deleteBeggar = async (req, res) => {
+  try {
+    const beggar = await Beggar.findByIdAndDelete(req.params.id);
+    if (!beggar) return res.status(404).json({ message: "Beggar not found" });
+    res.json({ message: "Beggar deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting beggar", error: err.message });
   }
 };

@@ -2,33 +2,15 @@ import mongoose from "mongoose";
 
 const beggarSchema = new mongoose.Schema(
   {
-    numberOfBeggars: {
-      type: Number,
-      required: true,
-    },
+    numberOfBeggars: { type: Number, required: true },
+    description: { type: String },
     location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
-      address: {
-        type: String,
-      },
+      latitude: { type: Number, required: true },
+      longitude: { type: Number, required: true },
     },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
-
-beggarSchema.index({ location: "2dsphere" }); // geospatial queries
 
 export default mongoose.model("Beggar", beggarSchema);
